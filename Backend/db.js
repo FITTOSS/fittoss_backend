@@ -14,3 +14,5 @@ mongoose
   })
   .then(() => console.log("MongoDB Connected♥"))
   .catch((err) => console.error(err.message));
+
+//mongoose.set("debug", true);
