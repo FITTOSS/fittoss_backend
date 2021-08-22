@@ -102,3 +102,23 @@ export const postLogin = async (req, res, next) => {
     next(error);
   }
 };
+
+// 새로운 이메일 인증 요청
+export const postRecallEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email)
+      return res.status(400).json({ message: "이메일이 필요합니다." });
+
+    const emailKey = generateHash();
+    await User.findOneAndUpdate(
+      { email },
+      { emailKey, emailCreatedAt: Date.now() }
+    );
+
+    nodemail(email, emailKey);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
