@@ -91,6 +91,9 @@ export const postLogin = async (req, res, next) => {
     if (!isValid)
       return res.status(400).json({ messasge: "비밀번호를 확인해주세요." });
 
+    if (!user.emailVerified)
+      return res.status(400).json({ messasge: "이메일 인증을 완료해주세요." });
+
     req.session.loggedIn = true;
     req.session.user = user;
 
