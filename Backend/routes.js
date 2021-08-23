@@ -7,15 +7,24 @@ const REGISTER = "/register";
 // local login
 const LOGIN = "/login";
 
+//logout
+const LOGOUT = "/logout";
+
 // email confirm
 const EMAIL_CONFIRM = "/email";
 
-const PASSWORD = "/password";
+// reset password
+const PASSWORD_RESET = "/password/reset";
+
+// change password
+const PASSWORD_CAHNGE = "/password/change";
 
 export const routes = {
   home: HOME,
   register: REGISTER,
   login: LOGIN,
   emailConfirm: EMAIL_CONFIRM,
-  password: PASSWORD,
+  passwordReset: PASSWORD_RESET,
+  passwordChange: PASSWORD_CAHNGE,
+  logout: LOGOUT,
 };

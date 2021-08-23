@@ -5,6 +5,46 @@ import { nodemail } from "../nodemailer/nodemail";
 
 const { hash, compare } = require("bcrypt");
 
+export const getConfirmEmail = async (req, res, next) => {
+  try {
+    const { emailKey } = req.query;
+
+    const user = await User.findOne({ emailKey });
+
+    const updateUser = await User.findOneAndUpdate(
+      {
+        emailKey,
+        emailCreatedAt: { $gte: new Date(Date.now() - user.ttl) },
+      },
+      { emailVerified: true },
+      { new: true }
+    );
+
+    if (!updateUser)
+      return res
+        .status(400)
+        .json({ message: "이메일 인증 유효시간이 지났습니다." });
+
+    res.status(200).json(updateUser);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getLogout = (req, res, next) => {
+  try {
+    console.log(req.session);
+
+    if (!req.session.loggedIn)
+      return res.status(400).json({ message: "권한이 없습니다." });
+
+    req.session.destroy();
+    res.status(200).json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const postRegister = async (req, res, next) => {
   // toDo
   // 이메일 인증
@@ -48,33 +88,7 @@ export const postRegister = async (req, res, next) => {
   }
 };
 
-export const getConfirmEmail = async (req, res, next) => {
-  try {
-    const { emailKey } = req.query;
-
-    const user = await User.findOne({ emailKey });
-
-    const updateUser = await User.findOneAndUpdate(
-      {
-        emailKey,
-        emailCreatedAt: { $gte: new Date(Date.now() - user.ttl) },
-      },
-      { emailVerified: true },
-      { new: true }
-    );
-
-    if (!updateUser)
-      return res
-        .status(400)
-        .json({ message: "이메일 인증 유효시간이 지났습니다." });
-
-    res.status(200).json(updateUser);
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const postLogin = async (req, res, next) => {
+export const patchLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -112,7 +126,7 @@ export const postLogin = async (req, res, next) => {
   }
 };
 
-export const postResetPassword = async (req, res, next) => {
+export const patchResetPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const resetKey = crypto.randomBytes(5).toString("hex");
@@ -130,6 +144,34 @@ export const postResetPassword = async (req, res, next) => {
     user.password = hashedPassword;
     await user.save();
     nodemail(email, resetKey, "password");
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const patchChangePassword = async (req, res, next) => {
+  try {
+    if (!req.session.loggedIn)
+      return res.status(400).json({ message: "권한이 없습니다." });
+
+    console.log(req.session);
+
+    const { password } = req.body;
+    if (!password)
+      return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+
+    if (password.length < 8)
+      return res
+        .status(400)
+        .json({ message: "비밀번호를 8자 이상으로 설정해주세요." });
+
+    const hashedPassword = await hash(password, 10);
+    await User.findOneAndUpdate(
+      { email: req.session.user.email },
+      { password: hashedPassword }
+    );
 
     res.status(200).json({ success: true });
   } catch (error) {
