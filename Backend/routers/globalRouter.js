@@ -7,6 +7,8 @@ import {
   patchLogin,
   patchResetPassword,
   patchChangePassword,
+  startGithubLogin,
+  finishGithubLogin,
 } from "../controllers/golobalController";
 
 export const globalRouter = express.Router();
@@ -23,3 +25,7 @@ globalRouter.patch(routes.login, patchLogin);
 globalRouter.patch(routes.passwordReset, patchResetPassword);
 // 비밀번호 변경
 globalRouter.patch(routes.passwordChange, patchChangePassword);
+
+// github
+globalRouter.get("/github/start", startGithubLogin);
+globalRouter.get("/github/finish", finishGithubLogin);

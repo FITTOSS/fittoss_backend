@@ -1,29 +1,30 @@
 import crypto from "crypto";
 import { generateHash } from "../nodemailer/generateHash";
 import { User } from "../models/User";
+import { Auth } from "../models/Auth";
 import { nodemail } from "../nodemailer/nodemail";
 
 const { hash, compare } = require("bcrypt");
 
 export const getConfirmEmail = async (req, res, next) => {
   try {
-    const { emailKey } = req.query;
+    const { emailKey, ttl } = req.query;
 
-    const user = await User.findOne({ emailKey });
+    const isValid = await Auth.findOne({
+      emailKey,
+      emailCreatedAt: { $gte: new Date(Date.now() - ttl) },
+    });
 
-    const updateUser = await User.findOneAndUpdate(
-      {
-        emailKey,
-        emailCreatedAt: { $gte: new Date(Date.now() - user.ttl) },
-      },
+    if (!isValid)
+      return res
+        .status(400)
+        .json({ messgae: "이메일 인증 유효시간이 지났습니다." });
+
+    const updateUser = await User.findByIdAndUpdate(
+      isValid.userId,
       { emailVerified: true },
       { new: true }
     );
-
-    if (!updateUser)
-      return res
-        .status(400)
-        .json({ message: "이메일 인증 유효시간이 지났습니다." });
 
     res.status(200).json(updateUser);
   } catch (error) {
@@ -50,7 +51,7 @@ export const postRegister = async (req, res, next) => {
   // 이메일 인증
 
   try {
-    const { email, password } = req.body;
+    const { email, password, role } = req.body;
 
     // 이메일 or 비밀번호 유무 체크
     if (!email || !password)
@@ -74,14 +75,17 @@ export const postRegister = async (req, res, next) => {
     // 이메일 인증 키 발급
     const emailKey = generateHash();
 
-    const user = await User.create({
-      email,
-      password: hashedPassword,
-      emailKey,
-      emailCreatedAt: new Date(),
-    });
+    const newUser = new User({ email, password: hashedPassword, role });
+    const [user, auth] = await Promise.all([
+      newUser.save(),
+      Auth.create({
+        emailKey,
+        emailCreatedAt: new Date(),
+        userId: newUser.id,
+      }),
+    ]);
 
-    nodemail(email, emailKey);
+    nodemail(email, emailKey, auth.ttl);
     res.status(200).json(user);
   } catch (error) {
     next(error);
@@ -108,12 +112,13 @@ export const patchLogin = async (req, res, next) => {
 
     if (!user.emailVerified) {
       const emailKey = generateHash();
-      await User.findOneAndUpdate(
-        { email },
-        { emailKey, emailCreatedAt: Date.now() }
+      const auth = await Auth.findOneAndUpdate(
+        { userId: user.id },
+        { emailKey, emailCreatedAt: Date.now() },
+        { new: true }
       );
 
-      nodemail(email, emailKey);
+      nodemail(email, emailKey, auth.ttl);
       return res.status(400).json({ messasge: "이메일 인증을 완료해주세요." });
     }
 
@@ -143,7 +148,7 @@ export const patchResetPassword = async (req, res, next) => {
 
     user.password = hashedPassword;
     await user.save();
-    nodemail(email, resetKey, "password");
+    nodemail(email, resetKey, 0, "password");
 
     res.status(200).json({ success: true });
   } catch (error) {
@@ -177,4 +182,38 @@ export const patchChangePassword = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+export const startGithubLogin = (req, res) => {
+  const baseUrl = "https://github.com/login/oauth/authorize";
+  const config = {
+    client_id: "7fc39f9d6a798fcc4ec4",
+    scope: "read:user user:email",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+  return res.redirect(finalUrl);
+};
+
+export const finishGithubLogin = async (req, res) => {
+  const { code } = req.query;
+
+  const baseUrl = "https://github.com/login/oauth/access_token";
+  const config = {
+    client_id: "7fc39f9d6a798fcc4ec4",
+    client_secret: "79eb91f4cde53be4467f3d7085f643c2fd03c1d5",
+    code,
+  };
+
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  const data = await fetch(finalUrl, {
+    method: "post",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  const json = await data.json();
+  console.log(json);
 };

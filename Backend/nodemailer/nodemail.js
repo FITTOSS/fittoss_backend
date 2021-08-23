@@ -5,7 +5,7 @@ import { BACK_URL, CLIENT_URL } from "./config";
 import { emailForm } from "./emailForm";
 
 // eslint-disable-next-line import/prefer-default-export
-export const nodemail = (email, key, type = "register") => {
+export const nodemail = (email, key, ttl, type = "register") => {
   const smtpTransport = nodemailer.createTransport(
     smtpTransporter({
       service: "Gmail",
@@ -22,7 +22,7 @@ export const nodemail = (email, key, type = "register") => {
   //url
   const url =
     type === "register"
-      ? `${BACK_URL}/api/email?emailKey=${key}`
+      ? `${BACK_URL}/api/email?emailKey=${key}&ttl=${ttl}`
       : `${CLIENT_URL}/login`;
 
   // emailType

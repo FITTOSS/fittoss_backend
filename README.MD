@@ -72,3 +72,14 @@ https://miryang.dev/2019/04/25/nodejs-page-3/
 https://techlog.io/Server/Node-js/node-js%EC%97%90%EC%84%9C-%EC%9D%B4%EB%A9%94%EC%9D%BC-%EC%9D%B8%EC%A6%9D%EC%9D%84-%ED%86%B5%ED%95%9C-%EB%B9%84%EB%B0%80%EB%B2%88%ED%98%B8-%EC%B4%88%EA%B8%B0%ED%99%94-%EA%B8%B0%EB%8A%A5-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0/
 
 https://www.codegrepper.com/code-examples/javascript/javascript+date+minus+seconds
+
+<br>
+
+### oauth github
+---
+
+<br>
+
+https://github.com/login/oauth/authorize?client_id=7fc39f9d6a798fcc4ec4&scope=user:email
+
+https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps
