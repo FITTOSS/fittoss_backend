@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { generateHash } from "../nodemailer/generateHash";
 import { User } from "../models/User";
 import { nodemail } from "../nodemailer/nodemail";
@@ -91,8 +92,16 @@ export const postLogin = async (req, res, next) => {
     if (!isValid)
       return res.status(400).json({ messasge: "비밀번호를 확인해주세요." });
 
-    if (!user.emailVerified)
+    if (!user.emailVerified) {
+      const emailKey = generateHash();
+      await User.findOneAndUpdate(
+        { email },
+        { emailKey, emailCreatedAt: Date.now() }
+      );
+
+      nodemail(email, emailKey);
       return res.status(400).json({ messasge: "이메일 인증을 완료해주세요." });
+    }
 
     req.session.loggedIn = true;
     req.session.user = user;
@@ -103,20 +112,25 @@ export const postLogin = async (req, res, next) => {
   }
 };
 
-// 새로운 이메일 인증 요청
-export const postRecallEmail = async (req, res, next) => {
+export const postResetPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
+    const resetKey = crypto.randomBytes(5).toString("hex");
+
     if (!email)
-      return res.status(400).json({ message: "이메일이 필요합니다." });
+      return res.status(400).json({ message: "이메일을 입력해주세요." });
 
-    const emailKey = generateHash();
-    await User.findOneAndUpdate(
-      { email },
-      { emailKey, emailCreatedAt: Date.now() }
-    );
+    const [user, hashedPassword] = await Promise.all([
+      User.findOne({ email }),
+      hash(resetKey, 10),
+    ]);
+    if (!user)
+      return res.status(400).json({ message: "가입되지 않은 이메일입니다." });
 
-    nodemail(email, emailKey);
+    user.password = hashedPassword;
+    await user.save();
+    nodemail(email, resetKey, "password");
+
     res.status(200).json({ success: true });
   } catch (error) {
     next(error);
