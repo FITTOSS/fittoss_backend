@@ -95,3 +95,14 @@ https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth
 https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=f4789bf5226f1ab3dfa37ab7bd789532&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fkakao%2Ffinish&prompt=login
 
 https://devhaks.github.io/2019/05/31/oauth2/
+
+
+### swagger 
+---
+<br>
+
+https://overcome-the-limits.tistory.com/entry/%ED%98%91%EC%97%85-%ED%98%91%EC%97%85%EC%9D%84-%EC%9C%84%ED%95%9C-swagger-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0-feat-nodejs
+
+https://velog.io/@yongh8445/Node-Express-Swagger-%EC%97%B0%EB%8F%99
+
+https://joooohee.tistory.com/10

@@ -14,6 +14,25 @@ import {
 
 export const globalRouter = express.Router();
 
+/**
+ * @swagger
+ *  /user/set:
+ *    get:
+ *      tags:
+ *      - global
+ *      description: 유저 로그인 유무 검증
+ *      produces:
+ *      - application/json
+ *      responses:
+ *        "200":
+ *          description: OK
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/User'
+ */
+
+// 유저 로그인 유무 검증
 globalRouter.get(routes.setUser, getSetUser);
 // email 인증 검증
 globalRouter.get(routes.emailConfirm, getConfirmEmail);

@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
-    socialOnly: { type: String, required: true, default: false },
+    socialOnly: { type: Boolean, required: true, default: false },
 
     name: String,
 

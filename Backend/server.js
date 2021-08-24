@@ -6,6 +6,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import { routes } from "./routes";
 import { globalRouter } from "./routers/globalRouter";
+import { specs, swaggerUi } from "./modules/swagger";
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,9 @@ app.use(
     store: MongoStore.create({ mongoUrl: DB_HOST }),
   })
 );
+
+//swagger
+app.use(routes.swagger, swaggerUi.serve, swaggerUi.setup(specs));
 
 // router
 app.use(routes.home, globalRouter);

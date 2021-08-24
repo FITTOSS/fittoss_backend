@@ -26,6 +26,9 @@ const PASSWORD_CAHNGE = "/password/change";
 const KAKAO_START = "/kakao/start";
 const KAKAO_FINISH = "/kakao/finish";
 
+// swagger
+const SWAGGER = "/swagger";
+
 export const routes = {
   home: HOME,
   setUser: SET_USER,
@@ -37,4 +40,5 @@ export const routes = {
   logout: LOGOUT,
   kakaoStart: KAKAO_START,
   kakaoFinish: KAKAO_FINISH,
+  swagger: SWAGGER,
 };

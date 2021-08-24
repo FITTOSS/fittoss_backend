@@ -1,0 +1,40 @@
+components:
+  schemas:
+    User:
+      properties:
+        role:
+          type: string
+          description: 회원 유형
+        email:
+          type: string
+          description: 이메일
+        password:
+          type: string
+          description: 비밀번호
+        socialOnly:
+          type: boolean
+          description: 소셜 로그인 확인
+        name:
+          type: string
+          description: 이름
+        gender:
+          type: string
+          description: 성별
+        birthday:
+          type: date
+          description: 생년월일
+        height:
+          type: integer
+          description: 키
+        weight:
+          type: integer
+          description: 체중
+        bodyFat:
+          type: integer
+          description: 체지방
+        muscle:
+          type: integer
+          description: 골격근
+        emailVerified:
+          type: boolean
+          description: 이메일 인증 여부
