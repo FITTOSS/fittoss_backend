@@ -83,3 +83,15 @@ https://www.codegrepper.com/code-examples/javascript/javascript+date+minus+secon
 https://github.com/login/oauth/authorize?client_id=7fc39f9d6a798fcc4ec4&scope=user:email
 
 https://docs.github.com/en/developers/apps/building-oauth-apps/authorizing-oauth-apps
+
+<br>
+
+---
+
+### kakao oauth 
+
+<br>
+
+https://kauth.kakao.com/oauth/authorize?response_type=code&client_id=f4789bf5226f1ab3dfa37ab7bd789532&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fkakao%2Ffinish&prompt=login
+
+https://devhaks.github.io/2019/05/31/oauth2/

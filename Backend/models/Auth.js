@@ -16,7 +16,7 @@ const authSchema = new mongoose.Schema(
     // 이메일 인증 유효시간 설정
     ttl: {
       type: Number,
-      default: 10000,
+      default: 30000,
     },
 
     emailCreatedAt: {

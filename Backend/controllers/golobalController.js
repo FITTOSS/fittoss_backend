@@ -1,10 +1,31 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
 import crypto from "crypto";
+import fetch from "node-fetch";
 import { generateHash } from "../nodemailer/generateHash";
 import { User } from "../models/User";
 import { Auth } from "../models/Auth";
 import { nodemail } from "../nodemailer/nodemail";
 
 const { hash, compare } = require("bcrypt");
+
+const { KAKAO_CLIENT_ID, KAKAO_SECRET, KAKAO_REDIRECT_URL } = process.env;
+
+export const getSetUser = async (req, res, next) => {
+  try {
+    if (req.session.loggedIn) {
+      const user = await User.findById(req.session.user._id);
+      res.status(200).json({
+        suceess: true,
+        data: user,
+      });
+    } else {
+      res.status(200).json({ success: true, message: "권한이 없습니다." });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const getConfirmEmail = async (req, res, next) => {
   try {
@@ -16,9 +37,10 @@ export const getConfirmEmail = async (req, res, next) => {
     });
 
     if (!isValid)
-      return res
-        .status(400)
-        .json({ messgae: "이메일 인증 유효시간이 지났습니다." });
+      return res.status(400).json({
+        success: false,
+        messgae: "이메일 인증 유효시간이 지났습니다.",
+      });
 
     const updateUser = await User.findByIdAndUpdate(
       isValid.userId,
@@ -26,7 +48,7 @@ export const getConfirmEmail = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json(updateUser);
+    res.status(200).json({ success: true, data: updateUser });
   } catch (error) {
     next(error);
   }
@@ -37,7 +59,9 @@ export const getLogout = (req, res, next) => {
     console.log(req.session);
 
     if (!req.session.loggedIn)
-      return res.status(400).json({ message: "권한이 없습니다." });
+      return res
+        .status(400)
+        .json({ successs: false, message: "권한이 없습니다." });
 
     req.session.destroy();
     res.status(200).json({ success: true });
@@ -55,20 +79,24 @@ export const postRegister = async (req, res, next) => {
 
     // 이메일 or 비밀번호 유무 체크
     if (!email || !password)
-      return res
-        .status(400)
-        .json({ message: "이메일 또는 비밀번호를 입력해주세요." });
+      return res.status(400).json({
+        success: false,
+        message: "이메일 또는 비밀번호를 입력해주세요.",
+      });
 
     // 비밀번호 길이 체크
     if (password.length < 8)
-      return res
-        .status(400)
-        .json({ message: "비밀번호를 8자 이상으로 설정해주세요." });
+      return res.status(400).json({
+        success: false,
+        message: "비밀번호를 8자 이상으로 설정해주세요.",
+      });
 
     // 이메일 중복 체크
     const emailExist = await User.exists({ email });
     if (emailExist)
-      return res.status(400).json({ message: "가입된 이메일입니다." });
+      return res
+        .status(400)
+        .json({ success: false, message: "가입된 이메일입니다." });
 
     // 비밀번호 해쉬화
     const hashedPassword = await hash(password, 10);
@@ -86,7 +114,7 @@ export const postRegister = async (req, res, next) => {
     ]);
 
     nodemail(email, emailKey, auth.ttl);
-    res.status(200).json(user);
+    res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
   }
@@ -98,17 +126,24 @@ export const patchLogin = async (req, res, next) => {
 
     // 이메일 or 비밀번호 유무 체크
     if (!email || !password)
+      return res.status(400).json({
+        success: false,
+        message: "이메일 또는 비밀번호를 입력해주세요.",
+      });
+
+    // kakao로 먼저 가입한 경우
+    // 몇몇 유저들은 kakao로 로그인 했는지 password를 통해서 login 했는지 잊어버리기 때문이다.
+    const user = await User.findOne({ email, socialOnly: false });
+    if (!user)
       return res
         .status(400)
-        .json({ message: "이메일 또는 비밀번호를 입력해주세요." });
-
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(400).json({ messasge: "가입되지 않은 이메일입니다." });
+        .json({ success: false, messasge: "가입되지 않은 이메일입니다." });
 
     const isValid = await compare(password, user.password);
     if (!isValid)
-      return res.status(400).json({ messasge: "비밀번호를 확인해주세요." });
+      return res
+        .status(400)
+        .json({ success: false, messasge: "비밀번호를 확인해주세요." });
 
     if (!user.emailVerified) {
       const emailKey = generateHash();
@@ -119,13 +154,15 @@ export const patchLogin = async (req, res, next) => {
       );
 
       nodemail(email, emailKey, auth.ttl);
-      return res.status(400).json({ messasge: "이메일 인증을 완료해주세요." });
+      return res
+        .status(400)
+        .json({ success: false, messasge: "이메일 인증을 완료해주세요." });
     }
 
     req.session.loggedIn = true;
     req.session.user = user;
 
-    res.status(200).json(user);
+    res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
   }
@@ -137,14 +174,18 @@ export const patchResetPassword = async (req, res, next) => {
     const resetKey = crypto.randomBytes(5).toString("hex");
 
     if (!email)
-      return res.status(400).json({ message: "이메일을 입력해주세요." });
+      return res
+        .status(400)
+        .json({ success: false, message: "이메일을 입력해주세요." });
 
     const [user, hashedPassword] = await Promise.all([
       User.findOne({ email }),
       hash(resetKey, 10),
     ]);
     if (!user)
-      return res.status(400).json({ message: "가입되지 않은 이메일입니다." });
+      return res
+        .status(400)
+        .json({ success: false, message: "가입되지 않은 이메일입니다." });
 
     user.password = hashedPassword;
     await user.save();
@@ -159,13 +200,17 @@ export const patchResetPassword = async (req, res, next) => {
 export const patchChangePassword = async (req, res, next) => {
   try {
     if (!req.session.loggedIn)
-      return res.status(400).json({ message: "권한이 없습니다." });
+      return res
+        .status(400)
+        .json({ success: false, message: "권한이 없습니다." });
 
     console.log(req.session);
 
     const { password } = req.body;
     if (!password)
-      return res.status(400).json({ message: "비밀번호를 입력해주세요." });
+      return res
+        .status(400)
+        .json({ success: false, message: "비밀번호를 입력해주세요." });
 
     if (password.length < 8)
       return res
@@ -184,36 +229,81 @@ export const patchChangePassword = async (req, res, next) => {
   }
 };
 
-export const startGithubLogin = (req, res) => {
-  const baseUrl = "https://github.com/login/oauth/authorize";
-  const config = {
-    client_id: "7fc39f9d6a798fcc4ec4",
-    scope: "read:user user:email",
-  };
-  const params = new URLSearchParams(config).toString();
-  const finalUrl = `${baseUrl}?${params}`;
-  return res.redirect(finalUrl);
+export const startKakaoLogin = (req, res, next) => {
+  try {
+    const baseUrl = "https://kauth.kakao.com/oauth/authorize";
+    const config = {
+      response_type: "code",
+      client_id: KAKAO_CLIENT_ID,
+      redirect_uri: KAKAO_REDIRECT_URL,
+      prompt: "login",
+      score: "account_email",
+    };
+
+    const params = new URLSearchParams(config).toString();
+    const finalUrl = `${baseUrl}?${params}`;
+    return res.redirect(finalUrl);
+  } catch (error) {
+    next(error);
+  }
 };
 
-export const finishGithubLogin = async (req, res) => {
-  const { code } = req.query;
+export const finishKakaoLogin = async (req, res, next) => {
+  try {
+    const { code } = req.query;
 
-  const baseUrl = "https://github.com/login/oauth/access_token";
-  const config = {
-    client_id: "7fc39f9d6a798fcc4ec4",
-    client_secret: "79eb91f4cde53be4467f3d7085f643c2fd03c1d5",
-    code,
-  };
+    const baseUrl = "https://kauth.kakao.com/oauth/token";
+    const config = {
+      grant_type: "authorization_code",
+      client_id: KAKAO_CLIENT_ID,
+      redirect_uri: KAKAO_REDIRECT_URL,
+      code,
+      client_secret: KAKAO_SECRET,
+    };
+    const params = new URLSearchParams(config).toString();
+    const finalUrl = `${baseUrl}?${params}`;
 
-  const params = new URLSearchParams(config).toString();
-  const finalUrl = `${baseUrl}?${params}`;
+    const tokenRequest = await (
+      await fetch(finalUrl, {
+        method: "post",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+        },
+      })
+    ).json();
 
-  const data = await fetch(finalUrl, {
-    method: "post",
-    headers: {
-      Accept: "application/json",
-    },
-  });
-  const json = await data.json();
-  console.log(json);
+    if (tokenRequest.access_token) {
+      const { access_token } = tokenRequest;
+      const apiUrl = `https://kapi.kakao.com/v2/user/me?property_keys=["kakao_account.email"]`;
+      const userData = await (
+        await fetch(apiUrl, {
+          method: "post",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${access_token}`,
+          },
+        })
+      ).json();
+
+      const { email } = userData.kakao_account;
+      let user = await User.findOne({ email });
+      if (!user) {
+        user = await User.create({
+          email,
+          socialOnly: true,
+          emailVerified: true,
+        });
+      }
+
+      req.session.loggedIn = true;
+      req.session.user = user;
+      return res.status(200).json({ success: true, data: user });
+    } else {
+      return res
+        .status(400)
+        .json({ success: false, message: "토큰이 유효하지 않습니다." });
+    }
+  } catch (error) {
+    next(error);
+  }
 };

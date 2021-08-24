@@ -4,7 +4,6 @@ const userSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      required: true,
     },
 
     email: {
@@ -15,12 +14,14 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      required: true,
     },
 
-    kakaoId: String,
+    socialOnly: { type: String, required: true, default: false },
+
     name: String,
+
     gender: String,
+
     birthday: Date,
     // 키
     height: Number,
@@ -34,7 +35,6 @@ const userSchema = new mongoose.Schema(
     //인증여부(유저가 이메일 인증을 완료하면 true로 바꾼다)
     emailVerified: {
       type: Boolean,
-      required: true,
       default: false,
     },
   },
