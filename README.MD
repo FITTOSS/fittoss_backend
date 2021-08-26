@@ -114,3 +114,17 @@ https://joooohee.tistory.com/10
 <br>
 
 https://kbs4674.tistory.com/180
+
+<br>
+
+### Response Time
+
+---
+
+<br>
+
+<img src="https://user-images.githubusercontent.com/62149784/130916785-10cba33d-1859-4750-811e-c75bc47f681a.jpg">
+
+<img src="https://user-images.githubusercontent.com/62149784/130916790-08c82b74-c1da-4f2b-8d85-abf10f2d532a.jpg">
+
+https://developers.google.com/speed/docs/insights/v5/about

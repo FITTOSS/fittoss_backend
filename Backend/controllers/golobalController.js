@@ -69,9 +69,6 @@ export const getLogout = (req, res, next) => {
 };
 
 export const postRegister = async (req, res, next) => {
-  // toDo
-  // 이메일 인증
-
   try {
     const { email, password } = req.body;
 
@@ -82,6 +79,17 @@ export const postRegister = async (req, res, next) => {
         message: "이메일 또는 비밀번호를 입력해주세요.",
       });
 
+    // 이메일 중복 체크, 비밀번호 해쉬화
+    const [emailExist, hashedPassword] = await Promise.all([
+      User.exists({ email }),
+      hash(password, 10),
+    ]);
+
+    if (emailExist)
+      return res
+        .status(400)
+        .json({ success: false, message: "가입된 이메일입니다." });
+
     // 비밀번호 길이 체크
     if (password.length < 8)
       return res.status(400).json({
@@ -89,15 +97,6 @@ export const postRegister = async (req, res, next) => {
         message: "비밀번호를 8자 이상으로 설정해주세요.",
       });
 
-    // 이메일 중복 체크
-    const emailExist = await User.exists({ email });
-    if (emailExist)
-      return res
-        .status(400)
-        .json({ success: false, message: "가입된 이메일입니다." });
-
-    // 비밀번호 해쉬화
-    const hashedPassword = await hash(password, 10);
     // 이메일 인증 키 발급
     const emailKey = generateHash();
 
@@ -131,8 +130,8 @@ export const patchLogin = async (req, res, next) => {
 
     // kakao로 먼저 가입한 경우
     // 몇몇 유저들은 kakao로 로그인 했는지 password를 통해서 login 했는지 잊어버리기 때문이다.
+
     const user = await User.findOne({ email, socialOnly: false });
-    console.log("user", user);
     if (!user)
       return res
         .status(400)
