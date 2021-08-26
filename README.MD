@@ -128,3 +128,33 @@ https://kbs4674.tistory.com/180
 <img src="https://user-images.githubusercontent.com/62149784/130916790-08c82b74-c1da-4f2b-8d85-abf10f2d532a.jpg">
 
 https://developers.google.com/speed/docs/insights/v5/about
+
+https://blog.hubspot.com/marketing/how-to-reduce-your-websites-page-speedhttps:
+
+https://developers.google.com/speed/pagespeed/insights/?url=https%3A%2F%2Fcodeplat.co.kr%2F&tab=desktop(페이지 속도 검사 사이트)
+
+<br>
+
+### 9 Quick Ways to Improve Page Loading Speed
+
+---
+
+<br>
+
+1. Choose a performance-optimized hosting solution.
+
+2. Compress and optimize your images.
+
+3. Reduce your redirects.
+
+4. Cache your web pages.
+
+5. Enable browser caching.
+
+6. Use asynchronous and defer loading for your CSS and JavaScript files.
+
+7. Minify CSS, JavaScript, and HTML.
+
+8. Leverage a content delivery network (CDN).
+
+9. Eliminate unnecessary plugins.

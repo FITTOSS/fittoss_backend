@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable camelcase */
 import crypto from "crypto";
 import fetch from "node-fetch";
 import { generateHash } from "../nodemailer/generateHash";
@@ -14,10 +12,9 @@ const { KAKAO_CLIENT_ID, KAKAO_SECRET, KAKAO_REDIRECT_URL } = process.env;
 export const getSetUser = async (req, res, next) => {
   try {
     if (req.session.loggedIn) {
-      const user = await User.findById(req.session.user._id);
       res.status(200).json({
         suceess: true,
-        data: user,
+        data: req.session.user,
       });
     } else {
       res.status(200).json({ success: true, message: "권한이 없습니다." });
@@ -201,8 +198,6 @@ export const patchChangePassword = async (req, res, next) => {
       return res
         .status(400)
         .json({ success: false, message: "권한이 없습니다." });
-
-    console.log(req.session);
 
     const { password } = req.body;
     if (!password)

@@ -4,6 +4,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import responseTime from "response-time";
 import { routes } from "./routes";
 import { globalRouter } from "./routers/globalRouter";
 
@@ -12,6 +13,7 @@ const app = express();
 
 const { PORT, DB_HOST, COOKIE_SECRET } = process.env;
 
+app.use(responseTime());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(
