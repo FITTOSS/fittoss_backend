@@ -106,3 +106,11 @@ https://overcome-the-limits.tistory.com/entry/%ED%98%91%EC%97%85-%ED%98%91%EC%97
 https://velog.io/@yongh8445/Node-Express-Swagger-%EC%97%B0%EB%8F%99
 
 https://joooohee.tistory.com/10
+
+<br>
+
+### postman API 명세
+---
+<br>
+
+https://kbs4674.tistory.com/180

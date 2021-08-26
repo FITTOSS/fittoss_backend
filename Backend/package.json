@@ -33,9 +33,6 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.1",
     "eslint-plugin-prettier": "^3.4.1",
-    "prettier": "^2.3.2",
-    "swagger-autogen": "^2.11.2",
-    "swagger-jsdoc": "^6.1.0",
-    "swagger-ui-express": "^4.1.6"
+    "prettier": "^2.3.2"
   }
 }

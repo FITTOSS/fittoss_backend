@@ -56,8 +56,6 @@ export const getConfirmEmail = async (req, res, next) => {
 
 export const getLogout = (req, res, next) => {
   try {
-    console.log(req.session);
-
     if (!req.session.loggedIn)
       return res
         .status(400)
@@ -75,7 +73,7 @@ export const postRegister = async (req, res, next) => {
   // 이메일 인증
 
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body;
 
     // 이메일 or 비밀번호 유무 체크
     if (!email || !password)
@@ -103,7 +101,7 @@ export const postRegister = async (req, res, next) => {
     // 이메일 인증 키 발급
     const emailKey = generateHash();
 
-    const newUser = new User({ email, password: hashedPassword, role });
+    const newUser = new User({ email, password: hashedPassword });
     const [user, auth] = await Promise.all([
       newUser.save(),
       Auth.create({
@@ -134,6 +132,7 @@ export const patchLogin = async (req, res, next) => {
     // kakao로 먼저 가입한 경우
     // 몇몇 유저들은 kakao로 로그인 했는지 password를 통해서 login 했는지 잊어버리기 때문이다.
     const user = await User.findOne({ email, socialOnly: false });
+    console.log("user", user);
     if (!user)
       return res
         .status(400)
@@ -213,9 +212,10 @@ export const patchChangePassword = async (req, res, next) => {
         .json({ success: false, message: "비밀번호를 입력해주세요." });
 
     if (password.length < 8)
-      return res
-        .status(400)
-        .json({ message: "비밀번호를 8자 이상으로 설정해주세요." });
+      return res.status(400).json({
+        success: false,
+        message: "비밀번호를 8자 이상으로 설정해주세요.",
+      });
 
     const hashedPassword = await hash(password, 10);
     await User.findOneAndUpdate(
