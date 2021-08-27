@@ -158,3 +158,18 @@ https://developers.google.com/speed/pagespeed/insights/?url=https%3A%2F%2Fcodepl
 8. Leverage a content delivery network (CDN).
 
 9. Eliminate unnecessary plugins.
+
+<br>
+
+
+### testing 관련 자료
+
+---
+
+<br>
+
+https://loy124.tistory.com/364
+
+https://libertegrace.tistory.com/entry/TDD-TDD-%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Unit-Test-Jest?category=869766
+
+https://jamong-icetea.tistory.com/347

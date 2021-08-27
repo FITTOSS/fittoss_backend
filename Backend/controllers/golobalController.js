@@ -1,3 +1,5 @@
+/* eslint-disable import/no-extraneous-dependencies */
+import "babel-polyfill";
 import crypto from "crypto";
 import fetch from "node-fetch";
 import { generateHash } from "../nodemailer/generateHash";
