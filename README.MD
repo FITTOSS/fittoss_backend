@@ -173,3 +173,9 @@ https://loy124.tistory.com/364
 https://libertegrace.tistory.com/entry/TDD-TDD-%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Unit-Test-Jest?category=869766
 
 https://jamong-icetea.tistory.com/347
+
+<br>
+
+✔ _isEndCalled()메서드
+
+테스트 코드에서는 mock response 객체의 _isEndCalled()메서드를 사용(node-mocks-http 제공)해서 res.status(201).send()에서 send()나 json()과 같이 추가적인 결과값이 전달되고 있는지 확인할 수 있다.
