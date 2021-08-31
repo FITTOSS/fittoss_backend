@@ -1,0 +1,7 @@
+{
+    "success":true,
+    "data":{
+        "password": "12345678910",
+        "emailVerified": true
+    }   
+}

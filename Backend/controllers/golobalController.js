@@ -115,27 +115,14 @@ export const patchLogin = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
-    // 이메일 or 비밀번호 유무 체크
     if (!email || !password)
-      return res.status(400).json({
-        success: false,
-        message: "이메일 또는 비밀번호를 입력해주세요.",
-      });
-
-    // kakao로 먼저 가입한 경우
-    // 몇몇 유저들은 kakao로 로그인 했는지 password를 통해서 login 했는지 잊어버리기 때문이다.
+      return next(throwError(400, "이메일 또는 비밀번호를 입력해주세요."));
 
     const user = await User.findOne({ email, socialOnly: false });
-    if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "가입되지 않은 이메일입니다." });
+    if (!user) return next(throwError(400, "가입되지 않은 이메일입니다."));
 
     const isValid = await compare(password, user.password);
-    if (!isValid)
-      return res
-        .status(400)
-        .json({ success: false, message: "비밀번호를 확인해주세요." });
+    if (!isValid) return next(throwError(400, "비밀번호를 확인해주세요."));
 
     if (!user.emailVerified) {
       const emailKey = generateHash();
@@ -146,14 +133,11 @@ export const patchLogin = async (req, res, next) => {
       );
 
       nodemail(email, emailKey, auth.ttl);
-      return res
-        .status(400)
-        .json({ success: false, message: "이메일 인증을 완료해주세요." });
+      return next(throwError(400, "이메일 인증을 완료해주세요."));
     }
 
     req.session.loggedIn = true;
     req.session.user = user;
-
     res.status(200).json({ success: true, data: user });
   } catch (error) {
     next(error);
@@ -165,19 +149,13 @@ export const patchResetPassword = async (req, res, next) => {
     const { email } = req.body;
     const resetKey = crypto.randomBytes(5).toString("hex");
 
-    if (!email)
-      return res
-        .status(400)
-        .json({ success: false, message: "이메일을 입력해주세요." });
+    if (!email) return next(throwError(400, "이메일을 입력해주세요."));
 
     const [user, hashedPassword] = await Promise.all([
       User.findOne({ email }),
       hash(resetKey, 10),
     ]);
-    if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "가입되지 않은 이메일입니다." });
+    if (!user) return next(throwError(400, "가입되지 않은 이메일입니다."));
 
     user.password = hashedPassword;
     await user.save();
@@ -191,22 +169,13 @@ export const patchResetPassword = async (req, res, next) => {
 
 export const patchChangePassword = async (req, res, next) => {
   try {
-    if (!req.session.loggedIn)
-      return res
-        .status(400)
-        .json({ success: false, message: "권한이 없습니다." });
+    if (!req.session.loggedIn) return next(throwError(400, "권한이 없습니다."));
 
     const { password } = req.body;
-    if (!password)
-      return res
-        .status(400)
-        .json({ success: false, message: "비밀번호를 입력해주세요." });
+    if (!password) return next(throwError(400, "비밀번호를 입력해주세요."));
 
     if (password.length < 8)
-      return res.status(400).json({
-        success: false,
-        message: "비밀번호를 8자 이상으로 설정해주세요.",
-      });
+      return next(throwError(400, "비밀번호를 8자 이상으로 설정해주세요."));
 
     const hashedPassword = await hash(password, 10);
     await User.findOneAndUpdate(
