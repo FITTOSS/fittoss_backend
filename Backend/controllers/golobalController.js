@@ -6,6 +6,7 @@ import { generateHash } from "../nodemailer/generateHash";
 import { User } from "../models/User";
 import { Auth } from "../models/Auth";
 import { nodemail } from "../nodemailer/nodemail";
+import { throwError } from "../utils/throwError";
 
 const { hash, compare } = require("bcrypt");
 
@@ -19,7 +20,10 @@ export const getSetUser = async (req, res, next) => {
         data: req.session.user,
       });
     } else {
-      res.status(200).json({ success: true, message: "권한이 없습니다." });
+      return res.status(400).json({
+        success: true,
+        message: "권한이 없습니다.",
+      });
     }
   } catch (error) {
     next(error);
@@ -73,10 +77,7 @@ export const postRegister = async (req, res, next) => {
 
     // 이메일 or 비밀번호 유무 체크
     if (!email || !password)
-      return res.status(400).json({
-        success: false,
-        message: "이메일 또는 비밀번호를 입력해주세요.",
-      });
+      return next(throwError(400, "이메일 또는 비밀번호를 입력해주세요."));
 
     // 이메일 중복 체크, 비밀번호 해쉬화
     const [emailExist, hashedPassword] = await Promise.all([
@@ -84,17 +85,11 @@ export const postRegister = async (req, res, next) => {
       hash(password, 10),
     ]);
 
-    if (emailExist)
-      return res
-        .status(400)
-        .json({ success: false, message: "가입된 이메일입니다." });
+    if (emailExist) return next(throwError(400, "가입된 이메일 입니다."));
 
     // 비밀번호 길이 체크
     if (password.length < 8)
-      return res.status(400).json({
-        success: false,
-        message: "비밀번호를 8자 이상으로 설정해주세요.",
-      });
+      return next(throwError(400, "비밀번호를 8자 이상으로 설정해주세요."));
 
     // 이메일 인증 키 발급
     const emailKey = generateHash();
@@ -134,13 +129,13 @@ export const patchLogin = async (req, res, next) => {
     if (!user)
       return res
         .status(400)
-        .json({ success: false, messasge: "가입되지 않은 이메일입니다." });
+        .json({ success: false, message: "가입되지 않은 이메일입니다." });
 
     const isValid = await compare(password, user.password);
     if (!isValid)
       return res
         .status(400)
-        .json({ success: false, messasge: "비밀번호를 확인해주세요." });
+        .json({ success: false, message: "비밀번호를 확인해주세요." });
 
     if (!user.emailVerified) {
       const emailKey = generateHash();
@@ -153,7 +148,7 @@ export const patchLogin = async (req, res, next) => {
       nodemail(email, emailKey, auth.ttl);
       return res
         .status(400)
-        .json({ success: false, messasge: "이메일 인증을 완료해주세요." });
+        .json({ success: false, message: "이메일 인증을 완료해주세요." });
     }
 
     req.session.loggedIn = true;

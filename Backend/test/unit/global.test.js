@@ -15,11 +15,20 @@ import { User } from "../../models/User";
 import { Auth } from "../../models/Auth";
 import permission from "../data/permission.json";
 import confirmEmail from "../data/confirmEmail.json";
+import createUser from "../data/createUser.json";
 import success from "../data/success.json";
+import userData from "../data/userData.json";
+import invalidUserData from "../data/invalidUserData.json";
+
+let { hash, compare } = require("bcrypt");
 
 // mock 함수
 Auth.findOne = jest.fn();
+Auth.create = jest.fn();
 User.findByIdAndUpdate = jest.fn();
+User.exists = jest.fn();
+hash = jest.fn();
+compare = jest.fn();
 
 let req;
 let res;
@@ -132,6 +141,44 @@ describe("GET /api/logout getLogout", () => {
       const { res: data } = await expressRequestMock(getLogout, option);
       expect(data.statusCode).toBe(400);
       expect(res._isEndCalled).toBeTruthy();
+    });
+  });
+});
+
+describe("POST /api/register", () => {
+  describe("성공 시", () => {
+    it("should have a postRegister function", () => {
+      req.body = userData;
+      expect(typeof postRegister).toBe("function");
+    });
+  });
+
+  describe("실패 시", () => {
+    it("res.body의 email or password 누락 시 400을 반환한다", async () => {
+      req.body = {};
+      await postRegister(req, res, next);
+      expect(next).toBeCalledWith(
+        new Error("이메일 또는 비밀번호를 입력해주세요.")
+      );
+    });
+
+    beforeEach(() => {
+      req.body = userData;
+    });
+
+    it("가입된 이메일인 경우 400을 반환한다.", async () => {
+      User.exists.mockReturnValue(true);
+      await postRegister(req, res, next);
+      expect(next).toBeCalledWith(new Error("가입된 이메일 입니다."));
+    });
+
+    it("비밀번호가 8자 이상일 경우 400을 반환한다.", async () => {
+      req.body = invalidUserData;
+      User.exists.mockReturnValue(false);
+      await postRegister(req, res, next);
+      expect(next).toBeCalledWith(
+        new Error("비밀번호를 8자 이상으로 설정해주세요.")
+      );
     });
   });
 });

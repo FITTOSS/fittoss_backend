@@ -20,5 +20,6 @@ module.exports = {
     "import/prefer-default-export": "off",
     camelcase: "off",
     "no-underscore-dangle": "off",
+    "no-return-await": "off",
   },
 };

@@ -30,8 +30,12 @@ app.use(routes.home, globalRouter);
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: err.message });
+  res.status(err.status || 5000);
+  res.json({ success: false, message: err.message });
+});
+
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "존재하지 않는 API입니다." });
 });
 
 if (!PORT) console.error("PORT is required");

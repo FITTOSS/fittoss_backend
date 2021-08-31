@@ -159,6 +159,8 @@ https://developers.google.com/speed/pagespeed/insights/?url=https%3A%2F%2Fcodepl
 
 9. Eliminate unnecessary plugins.
 
+10. NODE_ENV를 “production”으로 설정하기만 해도 앱 성능이 3배 향상되는 것으로 나타났습니다!
+
 <br>
 
 
@@ -174,8 +176,26 @@ https://libertegrace.tistory.com/entry/TDD-TDD-%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8
 
 https://jamong-icetea.tistory.com/347
 
+https://liketech.codes/mobx-spyon/
+
+https://www.daleseo.com/jest-fn-spy-on/
+
 <br>
 
 ✔ _isEndCalled()메서드
 
 테스트 코드에서는 mock response 객체의 _isEndCalled()메서드를 사용(node-mocks-http 제공)해서 res.status(201).send()에서 send()나 json()과 같이 추가적인 결과값이 전달되고 있는지 확인할 수 있다.
+
+✔ toHaveBeenCalled()
+
+호출 유무를 알 수 있다.
+
+<br>
+
+### express best practice
+---
+<br>
+
+https://expressjs.com/ko/advanced/best-practice-performance.html#use-gzip-compression
+
+https://blog.ull.im/engineering/2019/03/31/node-js-production-best-practices.html
