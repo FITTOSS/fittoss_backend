@@ -104,12 +104,13 @@ describe("GET /api/email getConfirmEmail", () => {
   });
 
   describe("실패 시", () => {
-    it("이메일 인증이 안됬을 경우, 400으로 응답한다.", async () => {
+    it("이메일 인증이 유효시간이 지났을 경우, 400으로 응답한다.", async () => {
       Auth.findOne.mockReturnValue(false);
       await getConfirmEmail(req, res, next);
 
-      expect(res.statusCode).toBe(400);
-      expect(res._isEndCalled).toBeTruthy();
+      expect(next).toBeCalledWith(
+        new Error("이메일 인증 유효시간이 지났습니다.")
+      );
     });
   });
 });
@@ -143,15 +144,14 @@ describe("GET /api/logout getLogout", () => {
 
   describe("실패 시", () => {
     it("로그인 하지 않은 경우, 400으로 응답한다", async () => {
-      const option = {
+      req = httpMocks.createRequest({
         session: {
           loggedIn: false,
         },
-      };
+      });
 
-      const { res: data } = await expressRequestMock(getLogout, option);
-      expect(data.statusCode).toBe(400);
-      expect(res._isEndCalled).toBeTruthy();
+      await getLogout(req, res, next);
+      expect(next).toBeCalledWith(new Error("권한이 없습니다."));
     });
   });
 });
@@ -204,7 +204,7 @@ describe("PATCH /api/login", () => {
       await patchLogin(req, res, next);
 
       expect(User.findOne).toHaveBeenCalledWith({
-        email: "yoteamo7@naver.com",
+        email: "magicnc7@naver.com",
         socialOnly: false,
       });
     });

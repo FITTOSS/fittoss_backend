@@ -170,6 +170,10 @@ https://developers.google.com/speed/pagespeed/insights/?url=https%3A%2F%2Fcodepl
 
 <br>
 
+https://rahmanfadhil.com/test-express-with-supertest/
+
+https://lgphone.tistory.com/100
+
 https://loy124.tistory.com/364
 
 https://libertegrace.tistory.com/entry/TDD-TDD-%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Unit-Test-Jest?category=869766
@@ -179,6 +183,8 @@ https://jamong-icetea.tistory.com/347
 https://liketech.codes/mobx-spyon/
 
 https://www.daleseo.com/jest-fn-spy-on/
+
+https://haeguri.github.io/2020/01/12/jest-mock-timer/ (jest-mock-timer)
 
 <br>
 

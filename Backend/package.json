@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "jest",
+    "coverage":"jest --coverage",
     "dev": "nodemon server.js --exec babel-node"
   },
   "author": "cho won jae",

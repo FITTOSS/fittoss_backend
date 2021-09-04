@@ -20,7 +20,7 @@ export const getSetUser = async (req, res, next) => {
         data: req.session.user,
       });
     } else {
-      return res.status(400).json({
+      return res.status(200).json({
         success: true,
         message: "권한이 없습니다.",
       });
@@ -40,10 +40,7 @@ export const getConfirmEmail = async (req, res, next) => {
     });
 
     if (!isValid)
-      return res.status(400).json({
-        success: false,
-        messgae: "이메일 인증 유효시간이 지났습니다.",
-      });
+      return next(throwError(400, "이메일 인증 유효시간이 지났습니다."));
 
     const updateUser = await User.findByIdAndUpdate(
       isValid.userId,
@@ -59,10 +56,7 @@ export const getConfirmEmail = async (req, res, next) => {
 
 export const getLogout = (req, res, next) => {
   try {
-    if (!req.session.loggedIn)
-      return res
-        .status(400)
-        .json({ successs: false, message: "권한이 없습니다." });
+    if (!req.session.loggedIn) return next(throwError(400, "권한이 없습니다."));
 
     req.session.destroy();
     res.status(200).json({ success: true });
