@@ -85,3 +85,26 @@ describe("PATCH /api/login", () => {
     expect(res.body.success).toBe(true);
   });
 });
+
+describe("PATCH /api/logout", () => {
+  it("로그인 안 한 유저라면 400", async () => {
+    const res = await request(app).get("/api/logout");
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toStrictEqual({
+      success: false,
+      message: "권한이 없습니다.",
+    });
+  });
+
+  const agent = request.agent(app);
+  beforeEach(async () => {
+    await agent.patch("/api/login").send(userData);
+  });
+
+  it("로그아웃 수행", async () => {
+    const res = await agent.get("/api/logout");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toStrictEqual({ success: true });
+  });
+});
