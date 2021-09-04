@@ -18,7 +18,7 @@ afterAll((done) => {
 const app = createApp();
 
 const userData = {
-  email: "magicnc7@naver.com",
+  email: "magicnc7@naverr.com",
   password: "12345678",
 };
 let userId;
@@ -68,7 +68,7 @@ describe("PATCH /api/login", () => {
   it("비밀번호 틀림", async () => {
     const res = await request(app)
       .patch("/api/login")
-      .send({ email: "magicnc7@naver.com", password: "123456789987" });
+      .send({ email: "magicnc7@naverr.com", password: "123456789987" });
 
     expect(res.statusCode).toBe(400);
     expect(res.body).toStrictEqual({
@@ -104,6 +104,29 @@ describe("PATCH /api/logout", () => {
 
   it("로그아웃 수행", async () => {
     const res = await agent.get("/api/logout");
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toStrictEqual({ success: true });
+  });
+});
+
+describe("PATCH /api/password/reset", () => {
+  it("가입되지 않은 이메일", async () => {
+    const res = await request(app)
+      .patch("/api/password/reset")
+      .send({ email: "asd@asd" });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toStrictEqual({
+      success: false,
+      message: "가입되지 않은 이메일입니다.",
+    });
+  });
+
+  it("비밀번호 초기화 수행", async () => {
+    const res = await request(app)
+      .patch("/api/password/reset")
+      .send({ email: "magicnc7@naverr.com" });
+
     expect(res.statusCode).toBe(200);
     expect(res.body).toStrictEqual({ success: true });
   });
