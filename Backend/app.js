@@ -33,7 +33,7 @@ const createServer = () => {
 
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
-    console.error(err.message);
+    // console.error(err.message);
     res.status(err.status || 5000);
     res.json({ success: false, message: err.message });
   });

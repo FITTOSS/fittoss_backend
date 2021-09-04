@@ -87,7 +87,7 @@ describe("PATCH /api/login", () => {
 });
 
 describe("PATCH /api/logout", () => {
-  it("로그인 안 한 유저라면 400", async () => {
+  it("로그인 안 한 유저인 경우, 400", async () => {
     const res = await request(app).get("/api/logout");
 
     expect(res.statusCode).toBe(400);
@@ -106,6 +106,68 @@ describe("PATCH /api/logout", () => {
     const res = await agent.get("/api/logout");
     expect(res.statusCode).toBe(200);
     expect(res.body).toStrictEqual({ success: true });
+  });
+});
+
+describe("PATCH /api/password/change", () => {
+  it("로그인 안 한 유저인 경우, 400", async () => {
+    const res = await request(app)
+      .patch("/api/password/change")
+      .send({ password: "123456789" });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toStrictEqual({
+      success: false,
+      message: "권한이 없습니다.",
+    });
+  });
+
+  const agent = request.agent(app);
+  beforeEach(async () => {
+    await agent.patch("/api/login").send(userData);
+  });
+
+  it("비밀번호 변경 수행", async () => {
+    const res = await agent
+      .patch("/api/password/change")
+      .send({ password: "123456789" });
+
+    expect(res.body).toStrictEqual({ success: true });
+    expect(res.statusCode).toBe(200);
+  });
+});
+
+describe("GET /api/user/set", () => {
+  it("로그인 하지 않은 경우, 200", async () => {
+    const res = await request(app).get("/api/user/set");
+
+    expect(res.body).toStrictEqual({
+      success: true,
+      message: "권한이 없습니다.",
+    });
+    expect(res.statusCode).toBe(200);
+  });
+
+  const agent = request.agent(app);
+  let user;
+
+  beforeEach(async () => {
+    const res = await agent.patch("/api/login").send({
+      email: "magicnc7@naverr.com",
+      password: "123456789",
+    });
+    user = res.body.data;
+    user.__v = 0;
+  });
+
+  it("set user 수행", async () => {
+    const res = await agent.get("/api/user/set");
+
+    expect(res.statusCode).toBe(200);
+    // expect(res.body).toStrictEqual({
+    //   success: true,
+    //   data: user,
+    // });
   });
 });
 
